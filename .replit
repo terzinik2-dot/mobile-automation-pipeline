@@ -1,0 +1,59 @@
+modules = ["python-3.11", "nodejs-20"]
+
+[nix]
+channel = "stable-23_11"
+
+[env]
+PYTHONPATH = "."
+NODE_ENV = "development"
+
+[[ports]]
+localPort = 8000
+externalPort = 80
+exposeLocalhost = true
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+exposeLocalhost = true
+
+[workflows]
+
+[[workflows.workflow]]
+name = "Start Full Stack"
+author = "user"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install -r requirements.txt && python api_server.py &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dashboard && npm install && npm run dev"
+
+[[workflows.workflow]]
+name = "Start API Only"
+author = "user"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install -r requirements.txt && python api_server.py"
+
+[[workflows.workflow]]
+name = "Run Tests"
+author = "user"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install -r requirements.txt && pytest tests/ -v --tb=short"
+
+[[workflows.workflow]]
+name = "Demo Run"
+author = "user"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python scripts/demo_run.py"
+
+[run]
+command = "pip install -r requirements.txt && python api_server.py"
