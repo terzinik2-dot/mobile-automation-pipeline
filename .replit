@@ -1,3 +1,4 @@
+entrypoint = "api_server.py"
 modules = ["python-3.11", "nodejs-20"]
 
 [nix]
@@ -17,6 +18,13 @@ localPort = 3000
 externalPort = 3000
 exposeLocalhost = true
 
+[run]
+args = ["bash", "start.sh"]
+
+[deployment]
+run = ["bash", "start.sh"]
+deploymentTarget = "cloudrun"
+
 [workflows]
 
 [[workflows.workflow]]
@@ -25,11 +33,7 @@ author = "user"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pip install -r requirements.txt && python api_server.py &"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd dashboard && npm install && npm run dev"
+args = "bash start.sh"
 
 [[workflows.workflow]]
 name = "Start API Only"
@@ -40,6 +44,14 @@ task = "shell.exec"
 args = "pip install -r requirements.txt && python api_server.py"
 
 [[workflows.workflow]]
+name = "Start Dashboard Only"
+author = "user"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd dashboard && npm install && npx next dev -p 3000"
+
+[[workflows.workflow]]
 name = "Run Tests"
 author = "user"
 
@@ -48,12 +60,9 @@ task = "shell.exec"
 args = "pip install -r requirements.txt && pytest tests/ -v --tb=short"
 
 [[workflows.workflow]]
-name = "Demo Run"
+name = "Demo Run (Simulated)"
 author = "user"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python scripts/demo_run.py"
-
-[run]
-command = "pip install -r requirements.txt && python api_server.py"
+args = "pip install -r requirements.txt && python scripts/demo_run.py"

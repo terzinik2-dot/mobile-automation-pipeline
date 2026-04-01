@@ -7,6 +7,61 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=flat-square&logo=clerk&logoColor=white)](https://clerk.com)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Run on Replit](https://replit.com/badge/github/terzinik2-dot/mobile-automation-pipeline)](https://replit.com/github.com/terzinik2-dot/mobile-automation-pipeline)
+
+---
+
+## Запуск на Replit
+
+> **Replit используется как основная среда разработки и control plane** для управления сценариями автоматизации.
+
+### Быстрый старт (1 минута)
+
+1. Нажмите кнопку **"Run on Replit"** выше или откройте: `replit.com/github.com/terzinik2-dot/mobile-automation-pipeline`
+2. Replit автоматически импортирует репозиторий и настроит окружение (Python 3.11 + Node.js 20 + Tesseract + ADB)
+3. Заполните **Secrets** в Replit (вкладка Tools > Secrets):
+   - `GOOGLE_TEST_EMAIL` — тестовый Google-аккаунт
+   - `GOOGLE_TEST_PASSWORD` — пароль
+   - `CLERK_SECRET_KEY` — ключ от Clerk.com
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — публичный ключ Clerk
+   - `BROWSERSTACK_USERNAME` / `BROWSERSTACK_ACCESS_KEY` — (опционально) для облачной фермы
+4. Нажмите **Run** — запустятся FastAPI (порт 8000) + Next.js Dashboard (порт 3000)
+5. Dashboard доступен по внешнему URL Replit
+
+### Что работает на Replit
+
+| Компонент | Статус | Описание |
+|-----------|--------|----------|
+| FastAPI Orchestrator | Полностью | API-сервер, управление прогонами, WebSocket |
+| Next.js Dashboard + Clerk | Полностью | Web-панель с авторизацией, запуск сценариев |
+| BrowserStack / AWS Adapter | Полностью | Управление облачными устройствами через API |
+| Appium Remote Sessions | Полностью | Подключение к удалённым Appium-серверам ферм |
+| CV/OCR Engine | Полностью | OpenCV + Tesseract установлены через Nix |
+| Local ADB | Ограниченно | USB-устройства недоступны, используйте ADB over WiFi |
+
+### Архитектура на Replit
+
+```
+┌─────────────────────────────────────────────────┐
+│                  REPLIT                          │
+│                                                 │
+│  ┌──────────────┐    ┌───────────────────────┐  │
+│  │  Next.js +   │◄──►│  FastAPI Orchestrator  │  │
+│  │  Clerk Auth  │    │  + SQLite + WebSocket  │  │
+│  │  (port 3000) │    │  (port 8000)           │  │
+│  └──────────────┘    └───────────┬────────────┘  │
+│                                  │               │
+└──────────────────────────────────┼───────────────┘
+                                   │ HTTPS API
+                    ┌──────────────┼──────────────┐
+                    │              │              │
+              ┌─────▼─────┐ ┌─────▼─────┐ ┌─────▼─────┐
+              │BrowserStack│ │ AWS Device│ │  ADB WiFi │
+              │  Appium    │ │   Farm    │ │  (local)  │
+              └───────────┘ └───────────┘ └───────────┘
+```
+
+Replit выступает как **control plane**: всё управление, аутентификация, оркестрация и визуализация результатов происходят здесь. Реальное взаимодействие с Android-устройствами идёт через API провайдеров ферм.
 
 ---
 
