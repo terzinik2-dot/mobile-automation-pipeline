@@ -1,8 +1,30 @@
 'use client';
 
 import { useState } from 'react';
-import { UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
+
+// Demo avatar when Clerk is not configured
+function DemoAvatar() {
+  return (
+    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
+      D
+    </div>
+  );
+}
+
+let ClerkUserButton: React.ComponentType<any> | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const clerk = require('@clerk/nextjs');
+  ClerkUserButton = clerk.UserButton;
+} catch {}
+
+function UserArea() {
+  if (ClerkUserButton && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    return <ClerkUserButton afterSignOutUrl="/" />;
+  }
+  return <DemoAvatar />;
+}
 import useSWR from 'swr';
 import { formatDistanceToNow } from 'date-fns';
 import ScenarioRunner from '@/components/ScenarioRunner';
@@ -53,7 +75,7 @@ export default function DashboardPage() {
           <span className="text-surface-600">/</span>
           <span className="text-gray-400 text-sm">Dashboard</span>
         </div>
-        <UserButton afterSignOutUrl="/" />
+        <UserArea />
       </nav>
 
       <div className="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
