@@ -291,11 +291,10 @@ async def health_check():
     return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 
-@app.post("/api/v1/scenarios/run", status_code=202)
+@app.post("/api/v1/scenarios/run", status_code=202, response_model=None)
 async def start_run(
     request: StartRunRequest,
     background_tasks: BackgroundTasks,
-    db: AsyncSession = None,
 ) -> dict:
     """
     Start a new pipeline run asynchronously.

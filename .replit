@@ -2,7 +2,7 @@ entrypoint = "api_server.py"
 modules = ["python-3.11", "nodejs-20"]
 
 [nix]
-channel = "stable-23_11"
+channel = "stable-24_05"
 
 [env]
 PYTHONPATH = "."
@@ -24,45 +24,3 @@ args = ["bash", "start.sh"]
 [deployment]
 run = ["bash", "start.sh"]
 deploymentTarget = "cloudrun"
-
-[workflows]
-
-[[workflows.workflow]]
-name = "Start Full Stack"
-author = "user"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "bash start.sh"
-
-[[workflows.workflow]]
-name = "Start API Only"
-author = "user"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pip install -r requirements.txt && python api_server.py"
-
-[[workflows.workflow]]
-name = "Start Dashboard Only"
-author = "user"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd dashboard && npm install && npx next dev -p 3000"
-
-[[workflows.workflow]]
-name = "Run Tests"
-author = "user"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pip install -r requirements.txt && pytest tests/ -v --tb=short"
-
-[[workflows.workflow]]
-name = "Demo Run (Simulated)"
-author = "user"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pip install -r requirements.txt && python scripts/demo_run.py"
