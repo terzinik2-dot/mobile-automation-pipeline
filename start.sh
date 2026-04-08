@@ -1,50 +1,35 @@
 #!/bin/bash
-# =============================================================================
 # Mobile Automation Pipeline — Replit Start Script
-# Запускает FastAPI backend + Next.js dashboard одной командой
-# =============================================================================
 
-set -e
+WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "=== Mobile Automation Pipeline ==="
+echo "Working dir: $WORKSPACE_DIR"
 
-echo "========================================="
-echo "  Mobile Automation Pipeline"
-echo "  Starting services..."
-echo "========================================="
+# Install Python deps
+echo "[1/3] Installing Python dependencies..."
+pip install -q fastapi uvicorn sqlalchemy aiosqlite loguru pydantic pydantic-settings websockets 2>&1 | tail -3
 
-# Install Python dependencies
-echo "[1/4] Installing Python dependencies..."
-pip install -q -r requirements.txt 2>&1 | tail -5
-
-# Install Node.js dependencies for dashboard
-echo "[2/4] Installing dashboard dependencies..."
-cd dashboard && npm install --silent 2>&1 | tail -3 && cd ..
-
-# Build Next.js for production
-echo "[3/4] Building Next.js dashboard..."
-cd dashboard && npx next build 2>&1 | tail -10 && cd ..
-
-# Start FastAPI backend on port 8000
-echo "[4/4] Starting servers..."
+# Start FastAPI on port 8000
+echo "[2/3] Starting FastAPI on :8000..."
+cd "$WORKSPACE_DIR"
 python api_server.py &
 API_PID=$!
-
-# Wait for API to be ready
 sleep 3
+echo "API PID: $API_PID"
 
-# Start Next.js dashboard on port 3000
-cd dashboard && npx next start -p 3000 &
+# Install Node deps and start Next.js dev on port 3000
+echo "[3/3] Starting Next.js dashboard on :3000..."
+cd "$WORKSPACE_DIR/dashboard"
+npm install --silent 2>/dev/null
+npx next dev -p 3000 &
 DASH_PID=$!
 
 echo ""
-echo "========================================="
-echo "  API Server:  http://0.0.0.0:8000"
-echo "  Dashboard:   http://0.0.0.0:3000"
-echo "  API Docs:    http://0.0.0.0:8000/docs"
-echo "========================================="
-echo ""
+echo "==================================="
+echo "API:       http://0.0.0.0:8000"
+echo "Dashboard: http://0.0.0.0:3000"
+echo "API Docs:  http://0.0.0.0:8000/docs"
+echo "==================================="
 
-# Trap to clean up on exit
 trap "kill $API_PID $DASH_PID 2>/dev/null; exit 0" SIGINT SIGTERM
-
-# Wait for both processes
 wait $API_PID $DASH_PID
