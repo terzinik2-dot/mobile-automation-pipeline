@@ -77,8 +77,10 @@ class RunRecord(Base):
     error = Column(Text, nullable=True)
 
 
+# Force SQLite — ignore any DATABASE_URL env var that may point to PostgreSQL
+_db_url = "sqlite+aiosqlite:///./pipeline.db"
 engine = create_async_engine(
-    settings.database_url,
+    _db_url,
     echo=False,
     connect_args={"check_same_thread": False},
 )
